@@ -18,8 +18,11 @@ Demo: http://matztada.github.io/other/boxfitting/BoxFitting.html
 BoxFitting with Images  
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=nKsaVP-hpC4
 " target="_blank"><img src="http://img.youtube.com/vi/nKsaVP-hpC4/0.jpg"
+alt="movie on youtube" width=40% border="10" /></a> 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=IcTS--13ZJE
+" target="_blank"><img src="http://img.youtube.com/vi/IcTS--13ZJE/0.jpg"
 alt="movie on youtube" width=40% border="10" /></a>  
-[movie on youtube](https://www.youtube.com/watch?v=nKsaVP-hpC4)  
+[movie on youtube](https://www.youtube.com/watch?v=nKsaVP-hpC4), [movie (short) on youtube](https://www.youtube.com/watch?v=IcTS--13ZJE)  
 Demo: http://matztada.github.io/other/boxfitting/BoxFitting_imageread.html
 
 photo by TKD, THX
