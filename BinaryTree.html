@@ -1,0 +1,69 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+  <style>
+    body {padding: 0; margin: 0;} /* to avoid to show scroll bars*/
+    canvas {display: block;}  /* to avoid to show scroll bars*/
+  </style>
+</head>
+<body>
+  <div id="p5canvas"></div>  
+</body>
+
+<script language="javascript" type="text/javascript">  
+
+
+function setup() {
+  var can = createCanvas(windowWidth, windowHeight);
+  can.parent("p5canvas");
+}
+
+function draw() {
+  background(0);
+  drawBinaryTree(0, width/2, height*3/4, width/2, height/4, 200, 5, 0.5, 45, 0.5, 1/12);
+}
+
+function windowResized(){
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function drawBinaryTree(cnt, x_s, y_s, x_e, y_e, len, num, junction, angle, probability, thickness) {
+  if(cnt > num) return;
+
+  stroke(255);
+  noFill();
+  line(x_s, y_s, x_e, y_e);
+
+  var x_1 = x_e;
+  var y_1 = y_e;
+  var x_2 = x_s + ((x_e-x_s)*cos(radians(-90))-(y_e-y_s)*sin(radians(-90))) * thickness;
+  var y_2 = y_s + ((x_e-x_s)*sin(radians(-90))+(y_e-y_s)*cos(radians(-90))) * thickness;
+  var x_3 = x_s + ((x_e-x_s)*cos(radians(90))-(y_e-y_s)*sin(radians(90))) * thickness;
+  var y_3 = y_s + ((x_e-x_s)*sin(radians(90))+(y_e-y_s)*cos(radians(90))) * thickness;  
+  stroke(0,255,0);
+  triangle(x_1, y_1, x_2, y_2, x_3, y_3);
+
+
+  var x_p = x_s + (x_e - x_s) * junction;
+  var y_p = y_s + (y_e - y_s) * junction;
+
+  var x_l = x_p + ((x_e-x_p)*cos(radians(-angle))-(y_e-y_p)*sin(radians(-angle)));
+  var y_l = y_p + ((x_e-x_p)*sin(radians(-angle))+(y_e-y_p)*cos(radians(-angle)));
+  var x_c = x_e;
+  var y_c = y_e;
+  var x_r = x_p + ((x_e-x_p)*cos(radians(angle))-(y_e-y_p)*sin(radians(angle)));
+  var y_r = y_p + ((x_e-x_p)*sin(radians(angle))+(y_e-y_p)*cos(radians(angle)));
+
+  var nlen = len * (1 - junction);
+
+  if(random() < probability) drawBinaryTree(cnt+1, x_p, y_p, x_l, y_l, nlen, num, junction, angle, probability, thickness);
+  if(random() < probability) drawBinaryTree(cnt+1, x_p, y_p, x_c, y_c, nlen, num, junction, angle, probability, thickness);
+  if(random() < probability) drawBinaryTree(cnt+1, x_p, y_p, x_r, y_r, nlen, num, junction, angle, probability, thickness);
+}
+
+
+</script>
+
+</html>
+

@@ -1,0 +1,71 @@
+<!-- read https://www.html5rocks.com/ja/tutorials/file/dndfiles/ -->
+
+<style>
+  .thumb {
+    height: 75px;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+  }
+  body {padding: 0; margin: 0;} /* to avoid to show scroll bars*/
+  canvas {display: block;}  /* to avoid to show scroll bars*/
+</style>
+
+
+<div id="p5canvas"></div>
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+
+<script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
+<script>
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+var gazous = [];
+
+function setup() {
+  var can = createCanvas(1200, 300);
+  can.parent("p5canvas");
+  // gazou=loadImage("apple.png");
+}
+
+function draw() {
+  background(200);
+  imageMode(CENTER);
+  
+  for(var i = 0; i < gazous.length; i++){
+    image(gazous[i], i*150,150,100,100);
+  }
+}
+
+function handleFileSelect(evt) {
+  var files = evt.target.files; // FileList object
+
+  // Loop through the FileList and render image files as thumbnails.
+  for (var i = 0, f; f = files[i]; i++) {
+
+    // Only process image files.
+    if (!f.type.match('image.*')) {
+      continue;
+    }
+
+    var reader = new FileReader();
+
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // // Render thumbnail.
+        // var span = document.createElement('span');
+        // span.innerHTML = ['<img class="thumb" src="', e.target.result,
+        //                   '" title="', escape(theFile.name), '"/>'].join('');
+        // document.getElementById('list').insertBefore(span, null);
+
+        gazous.push(loadImage(e.target.result));
+      };
+    })(f);
+
+    // Read in the image file as a data URL.
+    reader.readAsDataURL(f);
+  }
+}
+
+</script>

@@ -1,0 +1,293 @@
+<!-- 
+  Containers written by Tada Matz 
+  Updated: 2018/Sep/3rd
+  Created: 2018/July/10th
+
+  Based on...
+   - Containers : container movement visualization.
+   - Processing version of BoxFitting_collisoin
+   There are many things to do...
+
+  Using p5.js for visualization.
+  almost written from scratch.
+-->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
+  <style>
+    body {padding: 0; margin: 0;} /* to avoid to show scroll bars*/
+    canvas {display: block;}  /* to avoid to show scroll bars*/
+  </style>
+</head>
+<body>
+  
+<script language="javascript" type="text/javascript">  
+
+var exs = [];
+var groupmax = 100;
+var displaytype = 0;
+var displaytypemax = 2;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  colorMode(HSB, 360, 100, 100);
+
+  // create expanding box randomly
+  for(var i = 0; i < 100; i++){
+    createExpander(exs);
+  }
+}
+
+function draw() {
+  for(var tmpex of exs) {
+    tmpex.expand(exs);    
+  }
+
+  for(var i = exs.length - 1; i >= 0; i--){
+    if(!exs[i].expanding && exs[i].life <= 0) exs.splice(i, 1);
+  }
+
+  createExpander(exs); // add new expander
+
+
+  // visualize-----------------
+  background(50);
+  colorByTangency(exs);
+  orbitControl()
+
+  if(displaytype == 0 || displaytype == 1){
+    translate(0, 0, -500);
+    rotateX(radians(30));
+    rotateZ(radians(210) + frameCount * 0.01);
+    // rotateZ(radians(210));
+  }
+  translate(-width/2, -height/2, 0);
+
+  for(var tmpex of exs){
+    if(displaytype == 0) tmpex.display3D();
+    else tmpex.display();    
+    // tmpex.displayText();
+  } 
+
+  // // information
+  // fill(360);
+  // textAlign(RIGHT, BOTTOM);
+  // text("framerate: " + String.format("%.2f", frameRate) + "\n"
+  //   + "fill rate: " + String.format("%.3f", calcFilllingRate(exs)) + "\n"
+  //   + "num expander: " + exs.size()
+  //   , width, height);
+}
+
+function keyPressed(){
+  switch(key){
+    case " ":
+      displaytype += 1;
+      if(displaytype > displaytypemax) displaytype = 0;
+    break;
+    default:
+    break;
+  }
+  // return false;
+}
+
+// used as class
+function Expander(param){
+  this.x = param.x; 
+  this.y = param.y; 
+  this.w = param.w; 
+  this.h = param.h; 
+  this.ar = param.ar; 
+  this.expanding = param.expanding;
+  this.life = param.life;
+  this.lifetime = param.lifetime; 
+  this.fc_hue_expanding = param.fc_hue_expanding; 
+  this.fc_hue_stopping = param.fc_hue_stopping; 
+  this.sc_hue_stopping = param.sc_hue_stopping; 
+  this.group = param.group;
+
+  this.expand = function(_exs){
+    if(this.ar < 1){
+      var dw = 1;
+      if(!judgeRect(this.x, this.y, this.w, this.h, _exs)){
+        if(this.expanding){
+          this.lifetime = calcLifetime(this.w, this.h);
+          this.life = this.lifetime;
+        }
+        this.expanding = false;
+        this.life--;
+      } else{
+        this.w = this.w + dw*2;
+        this.h = this.w*this.ar;
+        this.expanding = true;
+      }
+    }else{
+      var dh = 1;
+      if(!judgeRect(this.x, this.y, this.w, this.h, _exs)){
+        if(this.expanding){
+          this.lifetime = calcLifetime(this.w, this.h);
+          this.life = this.lifetime;
+        }
+        this.expanding = false;
+        this.life--;
+      } else{
+        this.h = this.h + dh*2;
+        this.w = this.h/this.ar;
+        this.expanding = true;
+      }
+    }
+  }
+
+  this.display = function(){
+    if(this.expanding) fill(this.fc_hue_expanding);
+    else fill(this.fc_hue_stopping, 100, map(this.life, 0, this.lifetime, 0, 100));
+    stroke(this.sc_hue_stopping, 100, 100);
+    rectMode(CENTER);
+    rect(this.x, this.y, this.w, this.h, 0, 0);
+  }
+
+  this.display3D = function(){
+    if(this.expanding) fill(this.fc_hue_expanding);
+    else fill(this.fc_hue_stopping, 100, map(this.life, 0, this.lifetime, 0, 100));
+    stroke(this.sc_hue_stopping, 100, 100);
+    push();
+    
+    // for box shape
+    translate(this.x, this.y, calcHeight(this.w, this.h)/2);
+    box(this.w, this.h, calcHeight(this.w, this.h), 0, 0);
+
+    // // for cone shape
+    // translate(this.x, this.y, calcHeight(this.w, this.h)/2);
+    // rotateZ(radians(45));
+    // rotateX(radians(270));
+    // cone(Math.min(this.w/2, this.h/2), calcHeight(this.w, this.h), 4, 1, true);
+
+    pop();
+  }
+
+  this.displayText = function(){
+    fill(360);
+    textAlign(CENTER, CENTER);
+    text(this.group + "\n" + this.life, this.x, this.y);
+  }
+
+  this.resetPos = function(){
+    this.w = 2;
+    this.h = 2;
+  }
+
+  this.getSize = function(){
+    return this.w*this.h;
+  }
+};
+
+function judgeRect(_x, _y, _w, _h, _exs){
+  if(_x - _w/2 < 0 || width <= _x + _w/2) return false;
+  if(_y - _h/2 < 0 || height <= _y + _h/2) return false;
+
+  for(var tmpex of _exs){
+    if(_x == tmpex.x && _y == tmpex.y) continue;
+    if(Math.abs(_x - tmpex.x) <= (_w/2 + tmpex.w/2) 
+      && Math.abs(_y - tmpex.y) <= (_h/2 + tmpex.h/2)) return false;
+  }  
+  return true;  
+};
+
+function createExpander(_exs){
+  var tmpx = random(0, width);
+  var tmpy = random(0, height);
+  var tmpw = random(1, 5);
+  // var tmph = tmpw;
+  var tmph = random(1, 5);
+  // var tmpw = 1;
+  // var tmph = 1;
+
+  if(judgeRect(tmpx, tmpy, tmpw, tmph, _exs)){
+    _exs.push(new Expander({
+      x: tmpx, 
+      y: tmpy, 
+      w: tmpw, 
+      h: tmph, 
+      ar: tmph/tmpw, 
+      expanding: true,
+      life: 0,
+      lifetime: 0, 
+      fc_hue_expanding: 180, 
+      fc_hue_stopping: 120, 
+      sc_hue_stopping: 210, 
+      group: getUnusedGroup(_exs)
+      }));   
+  }    
+};
+
+function calcLifetime(_w, _h){
+  return Math.floor(_w * _h / 10);
+};
+
+function calcHeight(_w, _h){
+  // return pow(_w*_h / 500, 3/2);
+  return max(_w, _h);
+};
+
+
+function getUnusedGroup(_exs){
+  var hash_set = [];
+  for(var ex of _exs){
+    hash_set.push(ex.group);
+  }
+  var hash_set = hash_set.filter(function(x, i, self){
+    return self.indexOf(x) === i;
+  });
+  if(hash_set.length == 0) return 0;
+  for (var i = 0; i < groupmax; ++i) {
+    if(!hash_set.indexOf(i)) return i;
+  }
+  return -1;
+}
+
+
+function colorByTangency(_exs){
+  // preparation
+  for (var i = 0; i < _exs.length; ++i) {
+    _exs[i].group = i;    
+  }
+
+  // judge tangency. if contact, use smaller number group
+  for(var j = 0; j < _exs.length; j++){
+    for(var i = j + 1; i < _exs.length; i++){
+      var ex1 = _exs[j];
+      var ex2 = _exs[i];
+      if(ex1.x == ex2.x && ex1.y == ex2.y) continue; // skip myself
+      if(abs(ex1.x - ex2.x) <= (ex1.w/2 + ex2.w/2) && abs(ex1.y - ex2.y) <= (ex1.h/2 + ex2.h/2)){
+        ex2.group = ex1.group;
+      } 
+    }      
+  }
+
+  // 
+  var hash_set = [];
+  for(var ex of _exs) hash_set.push(ex.group);  
+  var list = hash_set.filter(function(x, i, self){
+    return self.indexOf(x) === i;
+  });
+
+  // create hash map for re-coloring
+  var hm = {};
+  for (var i = 0; i < list.length; ++i) {
+    // hm[list[i]] = 360 * i / list.length;
+    hm[list[i]] = map(list[i], 0, groupmax, 60, 180);
+  }
+
+  for(var ex of _exs){
+    // ex.fc_hue_stopping = hm[ex.group];
+    ex.fc_hue_stopping = hm[ex.group];
+    ex.sc_hue_stopping = hm[ex.group];
+  }  
+
+}
+
+</script>
+
+</body>
+</html>
+
