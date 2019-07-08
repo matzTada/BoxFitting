@@ -1,6 +1,6 @@
 <!-- 
-  Containers written by Tada Matz 
-  Updated: 2018/Sep/16th ; compress image, mosaic art 
+  Containers written by Tada Matz
+  Updated: 2018/Sep/16th ; compress image, mosaic art
   Updated: 2018/Sep/4th
   Updated: 2018/Sep/3rd
   Created: 2018/July/10th
@@ -25,24 +25,24 @@
   </style>
 </head>
 <body>
-<div id="p5canvas"></div>  
+<div id="p5canvas"></div>
 <input type="file" id="fileaddbutton" name="files[]" multiple />
 <input type="button" id="resetButton" value="reset" onClick="reset()">
 <input type="button" id="guiButton" value="gui" onClick="guiChange()">
 </body>
 
-<script language="javascript" type="text/javascript">  
+<script language="javascript" type="text/javascript">
 
 document.getElementById('fileaddbutton').addEventListener('change', handleFileSelect, false);
 function reset(){
-  exs = [];  
+  exs = [];
 }
 function guiChange(){
   guivisible = !guivisible;
   if(guivisible) gui.show();
   else gui.hide();
 }
-  
+
 
 var gazous = [];
 var gazoucnt = 0;
@@ -72,22 +72,22 @@ function setup() {
 
   gui = createGui("MATZMOS");
   gui.addGlobals(
-    "stopflag", 
-    "apoptosisflag", 
-    "imageflag", 
-    "mosaicflag", 
-    "contactflag", 
-    "lifemax", 
-    "newperloop", 
+    "stopflag",
+    "apoptosisflag",
+    "imageflag",
+    "mosaicflag",
+    "contactflag",
+    "lifemax",
+    "newperloop",
     "transparency",
-    "exsmax", 
+    "exsmax",
     );
 }
 
 function draw() {
   if(!stopflag){
     for(var tmpex of exs) {
-      tmpex.expand(exs);    
+      tmpex.expand(exs);
     }
 
     for(var i = exs.length - 1; i >= 0; i--){
@@ -103,7 +103,7 @@ function draw() {
     var numloop = exs.length - exsmax;
     for(var i = 0; i < numloop; i++){
       exs.shift();
-    }   
+    }
   }
 
 
@@ -112,9 +112,9 @@ function draw() {
   if(!mosaicflag) colorByTangency(exs);
 
   for(var tmpex of exs){
-    tmpex.display();    
+    tmpex.display();
     // tmpex.displayText();
-  } 
+  }
 }
 
 function keyPressed(){
@@ -149,22 +149,22 @@ function keyPressed(){
 
 // used as class
 function Expander(param){
-  this.x = param.x; 
-  this.y = param.y; 
-  this.w = param.w; 
-  this.h = param.h; 
-  this.ar = param.ar; 
+  this.x = param.x;
+  this.y = param.y;
+  this.w = param.w;
+  this.h = param.h;
+  this.ar = param.ar;
   this.expanding = param.expanding;
   this.life = param.life;
-  this.lifetime = param.lifetime; 
-  this.fc_hue_expanding = param.fc_hue_expanding; 
-  this.fc_hue_stopping = param.fc_hue_stopping; 
-  this.sc_hue_stopping = param.sc_hue_stopping; 
+  this.lifetime = param.lifetime;
+  this.fc_hue_expanding = param.fc_hue_expanding;
+  this.fc_hue_stopping = param.fc_hue_stopping;
+  this.sc_hue_stopping = param.sc_hue_stopping;
   this.group = param.group;
   this.gazouid = param.gazouid;
 
   this.expand = function(_exs){
-    if((contactflag && !isNotContact(this.x, this.y, this.w, this.h, _exs)) || calcLifetime(this.w, this.h) > lifemax){ // if contact, stop expanding and 
+    if((contactflag && !isNotContact(this.x, this.y, this.w, this.h, _exs)) || calcLifetime(this.w, this.h) > lifemax){ // if contact, stop expanding and
       if(this.expanding){
         this.lifetime = calcLifetime(this.w, this.h);
         this.life = this.lifetime;
@@ -221,10 +221,10 @@ function isNotContact(_x, _y, _w, _h, _exs){
 
   for(var tmpex of _exs){
     if(_x == tmpex.x && _y == tmpex.y) continue;
-    if(Math.abs(_x - tmpex.x) <= (_w/2 + tmpex.w/2) 
+    if(Math.abs(_x - tmpex.x) <= (_w/2 + tmpex.w/2)
       && Math.abs(_y - tmpex.y) <= (_h/2 + tmpex.h/2)) return false;
-  }  
-  return true;  
+  }
+  return true;
 };
 
 function createExpander(_exs, _gazous){
@@ -256,28 +256,28 @@ function createExpander(_exs, _gazous){
         map(tmpy, 0, height, 0, tmpbaseimg.height)
         );
       tmpiro = color(red(tmpiro), green(tmpiro), blue(tmpiro));
-    } 
+    }
 
     _exs.push(new Expander({
-      x: tmpx, 
-      y: tmpy, 
-      w: tmpw, 
-      h: tmph, 
-      ar: tmpar, 
+      x: tmpx,
+      y: tmpy,
+      w: tmpw,
+      h: tmph,
+      ar: tmpar,
       expanding: true,
       life: 0,
-      lifetime: 0, 
-      fc_hue_expanding: tmpiro, 
-      fc_hue_stopping: tmpiro, 
-      sc_hue_stopping: tmpiro, 
+      lifetime: 0,
+      fc_hue_expanding: tmpiro,
+      fc_hue_stopping: tmpiro,
+      sc_hue_stopping: tmpiro,
       group: getUnusedGroup(_exs),
       gazouid: gazoucnt
-      }));   
-  
+      }));
+
     gazoucnt += 1;
     if(gazoucnt >= _gazous.length) gazoucnt = 0;
 
-  }    
+  }
 };
 
 function calcLifetime(_w, _h){
@@ -309,7 +309,7 @@ function getUnusedGroup(_exs){
 function colorByTangency(_exs){
   // preparation
   for (var i = 0; i < _exs.length; ++i) {
-    _exs[i].group = i;    
+    _exs[i].group = i;
   }
 
   // judge tangency. if contact, use smaller number group
@@ -320,13 +320,13 @@ function colorByTangency(_exs){
       if(ex1.x == ex2.x && ex1.y == ex2.y) continue; // skip myself
       if(abs(ex1.x - ex2.x) <= (ex1.w/2 + ex2.w/2) && abs(ex1.y - ex2.y) <= (ex1.h/2 + ex2.h/2)){
         ex2.group = ex1.group;
-      } 
-    }      
+      }
+    }
   }
 
-  // 
+  //
   var hash_set = [];
-  for(var ex of _exs) hash_set.push(ex.group);  
+  for(var ex of _exs) hash_set.push(ex.group);
   var list = hash_set.filter(function(x, i, self){
     return self.indexOf(x) === i;
   });
@@ -344,7 +344,7 @@ function colorByTangency(_exs){
     // ex.fc_hue_stopping = hm[ex.group];
     ex.fc_hue_stopping = hm[ex.group];
     ex.sc_hue_stopping = hm[ex.group];
-  }  
+  }
 
 }
 
@@ -375,7 +375,7 @@ function hsvToRgb(H,S,V) {
 }
 
 function handleFileSelect(evt) { // image handling function
-  var files = evt.target.files; 
+  var files = evt.target.files;
   for (var i = 0, f; f = files[i]; i++) {
     if (!f.type.match('image.*')) continue;
     var reader = new FileReader();
@@ -399,7 +399,7 @@ function handleFileSelect(evt) { // image handling function
           tmpcanvas.height = tmph;
           ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, tmpw, tmph);
           var canvasImageURL = tmpcanvas.toDataURL();
-          gazous.push(loadImage(canvasImageURL));        
+          gazous.push(loadImage(canvasImageURL));
         };
         image.src = e.target.result;
       };
@@ -410,4 +410,3 @@ function handleFileSelect(evt) { // image handling function
 
 </script>
 </html>
-
